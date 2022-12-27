@@ -10,7 +10,7 @@
     (shell-command
      (concat
       "/Users/josh/Documents/csstuff/lilyPond/import_midi_to_logic/import_midi_to_logic.py "
-      (if (not (equal current-prefix-arg nil)) "-f ")
+      (if (not (equal current-prefix-arg nil)) "--first ")
       (number-to-string (+ n 1)) " " ; Add 1 because LilyPond adds one more track than there are staves
       "'" buffer-file-name "'")
     (get-buffer-create "*Standard output*")))
