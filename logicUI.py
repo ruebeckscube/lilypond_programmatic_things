@@ -65,14 +65,14 @@ class LogicUI():
 
         print("Navigating to folder...")
         kb.send('command+shift+g')
-
+        time.sleep(1)
         subprocess.run("pbcopy", text=True, input=midiFile)
         kb.send('command+v')  # copy/paste is way faster than kb.write()
-        time.sleep(0.1)
+        time.sleep(1)
         kb.send('enter')
 
         print("Pressing import...")
-        time.sleep(0.3)
+        time.sleep(1)
         import_window.buttons("Import")[0].Press()
 
         print("Midi file imported")
