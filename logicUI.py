@@ -61,14 +61,14 @@ class LogicUI():
         print("Opening up midi selection window...")
         self.UI.menuItem("File", "Import", "MIDI File…").Press()
         import_window = self.__getWindowReference("Import", 3)
-        print(type(import_window))
 
         print("Navigating to folder...")
+        time.sleep(0.3)
         kb.send('command+shift+g')
-        time.sleep(1)
+        time.sleep(0.5)
         subprocess.run("pbcopy", text=True, input=midiFile)
         kb.send('command+v')  # copy/paste is way faster than kb.write()
-        time.sleep(1)
+        time.sleep(.1)
         kb.send('enter')
 
         print("Pressing import...")
