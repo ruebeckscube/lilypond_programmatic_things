@@ -6,8 +6,18 @@ open instance of Logic.
 """
 import time
 import atomacos as ato
-import keyboard as kb  # use for all keystrokes instead of atomacos because Dvorak
+from pynput.keyboard import Key, Controller  # use for all keystrokes instead of atomacos because Dvorak
 import subprocess
+
+
+kb = Controller()
+
+def hotkey(*args):
+    for key in args:
+        kb.press(key)
+    for key in reversed(args):
+        kb.release(key)
+
 
 class LogicUI():
     """Interacts with Logic."""
@@ -41,13 +51,13 @@ class LogicUI():
         """
         self.UI.activate()
         old_num_children = len(self.UI.AXMainWindow.AXChildren)
-        kb.send('x')
+        hotkey('x')
         mixer_closed = len(self.UI.AXMainWindow.AXChildren) < old_num_children
         if mixer_closed:
             print("Mixer already open, closed it.")
         else:
             print("Toggling mixer open/closed")
-            kb.send('x')
+            hotkey('x')
 
     def goToLeftLocator(self):
         """Move the playhead to the left locator."""
@@ -60,16 +70,17 @@ class LogicUI():
         self.UI.activate()
         print("Opening up midi selection window...")
         self.UI.menuItem("File", "Import", "MIDI File…").Press()
+        time.sleep(.2)
         import_window = self.__getWindowReference("Import", 3)
 
         print("Navigating to folder...")
         time.sleep(0.3)
-        kb.send('command+shift+g')
+        hotkey(Key.cmd, Key.shift, 'g')
         time.sleep(0.5)
         subprocess.run("pbcopy", text=True, input=midiFile)
-        kb.send('command+v')  # copy/paste is way faster than kb.write()
+        hotkey(Key.cmd, 'v')
         time.sleep(.1)
-        kb.send('enter')
+        hotkey(Key.enter)
 
         print("Pressing import...")
         time.sleep(1)
@@ -83,25 +94,25 @@ class LogicUI():
         # This is gross but prevents edge case where this doesn't work because
         # all (or most) tracks are already selected
         self.UI.menuItem("Track", "New Audio Track").Press()
-        kb.send('delete')
+        hotkey(Key.delete)
 
         print("Moving selection down by", total_num)
-        for i in range(total_num):
-            kb.send('down')
-        for i in range(select_num - 1):
-            kb.send('shift+up')
+        for _ in range(total_num):
+            hotkey(Key.down)
+        for _ in range(select_num - 1):
+            hotkey(Key.shift, Key.up)
 
     def move_last_tracks_to_prev_tracks(self, num_tracks):
         self.UI.activate()
         self.selectLastTracks(num_tracks, num_tracks * 2 + 10)
-        kb.send('command+x')
-        kb.send('delete')
-        for i in range(num_tracks - 1):
-            kb.send('shift+up')
-        for i in range(num_tracks - 1):
-            kb.send('up')
-        kb.send('delete')  # Assumes they're populated
-        kb.send('command+v')
+        hotkey(Key.cmd, 'x')
+        hotkey(Key.delete)
+        for _ in range(num_tracks - 1):
+            hotkey(Key.shift, Key.up)
+        for _ in range(num_tracks - 1):
+            hotkey(Key.up)
+        hotkey(Key.delete)  # Assumes they're populated
+        hotkey(Key.cmd, 'v')
         paste_window = self.__getWindowReference("Paste on Multiple Tracks", 3)
         paste_window.radioButtons("Use the selected and following tracks")[0].Press()
         paste_window.buttons("OK")[0].Press()
@@ -109,4 +120,4 @@ class LogicUI():
     def delete_last_tracks_regions(self, num_tracks):
         self.UI.activate()
         self.selectLastTracks(num_tracks, num_tracks + 10)
-        kb.send('delete')
+        hotkey(Key.delete)
